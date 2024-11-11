@@ -1,5 +1,8 @@
 import axios from "axios";
 import pm2 from "pm2";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const TARGET_PROCESS_NAME = "website"; // Replace with your website process name

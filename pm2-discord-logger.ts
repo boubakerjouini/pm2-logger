@@ -7,6 +7,8 @@ dotenv.config();
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const TARGET_PROCESS_NAME = "website"; // Replace with your website process name
 
+console.log("DISCORD_WEBHOOK_URL:", DISCORD_WEBHOOK_URL);
+
 if (!DISCORD_WEBHOOK_URL) {
   throw new Error("The DISCORD_WEBHOOK_URL environment variable is not set.");
 }

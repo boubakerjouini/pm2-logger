@@ -8,5 +8,5 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist"
   },
-  "include": ["pm2-discord-logger.ts"]
+  "include": ["pm2-discord-logger-prod.ts", "pm2-discord-logger-stagging.ts"]
 }

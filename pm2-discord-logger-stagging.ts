@@ -8,7 +8,7 @@ const DISCORD_WEBHOOK_URL =
   "https://discord.com/api/webhooks/1305550394017185954/5DBuG_7A7T0psq2IAlIEOkqn1wi7Af_onqYYL-QfnERqzjf5F0XhHH8KAvPtRShEKRe5";
 const TARGET_PROCESS_NAME = "main"; // Replace with your process name
 const DISCORD_USER_ID = "1012662436584759378";
-const API_URL = "api.watad.vip/api/hey";
+const API_URL = "http://stg.watad.vip/api/health";
 if (!DISCORD_WEBHOOK_URL) {
   throw new Error("The DISCORD_WEBHOOK_URL environment variable is not set.");
 }

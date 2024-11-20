@@ -8,7 +8,7 @@ const DISCORD_WEBHOOK_URL =
   "https://discord.com/api/webhooks/1305549502849089576/lYfnxNsiFXYK0nqliEpiTOR1vdn79VU9B0NELjXKonqGzK05rtKBVsTS4U4tXJzBzFVS";
 const TARGET_PROCESS_NAME = "main"; // Replace with your process name
 const DISCORD_USER_ID = "1012662436584759378";
-const API_URL = "https://35.181.22.184/api/hey"; // Health check URL
+const API_URL = "https://35.181.22.184/api/health"; // Health check URL
 
 if (!DISCORD_WEBHOOK_URL) {
   throw new Error("The DISCORD_WEBHOOK_URL environment variable is not set.");

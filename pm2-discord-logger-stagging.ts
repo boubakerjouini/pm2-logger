@@ -8,6 +8,7 @@ const DISCORD_WEBHOOK_URL =
   "https://discord.com/api/webhooks/1305550394017185954/5DBuG_7A7T0psq2IAlIEOkqn1wi7Af_onqYYL-QfnERqzjf5F0XhHH8KAvPtRShEKRe5";
 const TARGET_PROCESS_NAME = "main"; // Replace with your process name
 const DISCORD_USER_ID = "1012662436584759378";
+const API_URL = "https://35.181.22.184/api/hey"; // Health check URL
 
 if (!DISCORD_WEBHOOK_URL) {
   throw new Error("The DISCORD_WEBHOOK_URL environment variable is not set.");
@@ -53,6 +54,56 @@ async function sendLogToDiscord(
   }
 }
 
+// Function to check the health of the API
+const checkHealth = async () => {
+  try {
+    const response = await axios.get(API_URL, { timeout: 5000 }); // Timeout after 5 seconds
+    if (response.status === 200) {
+      console.log("API health check successful.");
+    } else {
+      console.error("API health check failed with status:", response.status);
+      await sendLogToDiscord(
+        "API health check failed. Status: " + response.status,
+        true
+      );
+    }
+  } catch (error: unknown) {
+    if (error instanceof axios.AxiosError) {
+      // Axios-specific error handling
+      if (error.code === "ECONNABORTED") {
+        console.error("API health check timeout: request took too long.");
+        await sendLogToDiscord(
+          "API health check timeout: request took longer than 5 seconds.",
+          true
+        );
+      } else {
+        console.error("Error during health check:", error.message);
+        await sendLogToDiscord(
+          "Error during API health check: " + error.message,
+          true
+        );
+      }
+    } else if (error instanceof Error) {
+      // Generic error handling
+      console.error("Error during health check:", error.message);
+      await sendLogToDiscord(
+        "Error during API health check: " + error.message,
+        true
+      );
+    } else {
+      // Handle non-Error types (rare)
+      console.error("An unknown error occurred during health check.");
+      await sendLogToDiscord(
+        "An unknown error occurred during API health check.",
+        true
+      );
+    }
+  }
+};
+
+// Set an interval to check the API every 10 seconds
+setInterval(checkHealth, 10000);
+
 pm2.launchBus((err: Error | null, bus: any) => {
   if (err) {
     console.error("Error launching PM2 Bus:", err);
@@ -61,17 +112,6 @@ pm2.launchBus((err: Error | null, bus: any) => {
 
   console.log("Connected to PM2 log stream...");
   sendLogToDiscord("Connected to logs stream...");
-
-  // Handle Standard Logs
-  // bus.on("log:out", (packet: any) => {
-  //   if (packet.process.name === TARGET_PROCESS_NAME) {
-  //     const logMessage = `[INFO] [${packet.process.name}] ${packet.data}`;
-  //     console.log(logMessage);
-  //     sendLogToDiscord(logMessage, false, [
-  //       { name: "Log Type", value: "Standard Output", inline: true },
-  //     ]);
-  //   }
-  // });
 
   // Handle Error Logs
   bus.on("log:err", (packet: any) => {
@@ -94,6 +134,25 @@ pm2.launchBus((err: Error | null, bus: any) => {
       sendLogToDiscord(crashMessage, true, [
         { name: "Exit Code", value: `${exitCode}`, inline: true },
         { name: "Reason", value: reason, inline: true },
+        {
+          name: "Process ID",
+          value: `${packet.process.pm_id ?? "N/A"}`,
+          inline: true,
+        },
+      ]);
+    }
+  });
+
+  bus.on("process:exception", (packet: any) => {
+    if (packet.process && packet.process.name === TARGET_PROCESS_NAME) {
+      const exceptionMessage = `🔥 [${packet.process.name}] Uncaught Exception: ${packet.data}`;
+      console.error(exceptionMessage);
+      sendLogToDiscord(exceptionMessage, true, [
+        {
+          name: "Exit Code",
+          value: `${packet.process.exit_code ?? "N/A"}`,
+          inline: true,
+        },
         {
           name: "Process ID",
           value: `${packet.process.pm_id ?? "N/A"}`,
